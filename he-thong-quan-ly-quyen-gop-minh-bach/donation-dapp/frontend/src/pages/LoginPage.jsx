@@ -1,0 +1,171 @@
+import React, { useState } from "react";
+import { Form, Input, Button, Checkbox, message } from "antd";
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
+
+const LoginPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values) => {
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: values.username,    // Dùng username làm email
+          matKhau: values.password,  // Backend dùng matKhau
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.user) {
+        // QUAN TRỌNG: Đảm bảo lưu cả _id và các field cần thiết
+        const userToSave = {
+          _id: data.user._id || data.user.id, // Hỗ trợ cả 2 kiểu
+          hoTen: data.user.hoTen,
+          email: data.user.email,
+          vaiTro: data.user.vaiTro || "CaNhan",
+          avatar: data.user.logo?.[0] || "https://i.pravatar.cc/150?img=3", // fallback avatar
+        };
+
+        localStorage.setItem("user", JSON.stringify(userToSave));
+        message.success("Đăng nhập thành công!");
+        
+        // Chuyển hướng về trang trước đó hoặc /profile
+        const redirectTo = location.state?.from?.pathname || "/";
+        navigate(redirectTo);
+
+      } else {
+        message.error(data.message || data.error || "Sai email hoặc mật khẩu!");
+      }
+    } catch (err) {
+      console.error("Lỗi đăng nhập:", err);
+      message.error("Không thể kết nối đến máy chủ!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ height: "100vh", display: "flex" }}>
+      {/* Bên trái - Hình ảnh */}
+      <div
+        style={{
+          flex: 1,
+          backgroundImage:
+            "url('https://i.pinimg.com/736x/35/ae/43/35ae430fdb92d78754d3f7e20e0f93f7.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#000000ff",
+          textAlign: "center",
+          padding: "0 20px",
+        }}
+      >
+        <img
+          src="https://vn-test-11.slatic.net/shop/ef696bbfa65b218629e1ee20923b731e.jpeg"
+          alt="Logo"
+          style={{ width: 100, marginBottom: 20 }}
+        />
+        <h2 style={{ fontWeight: "bold", fontSize: 24 }}>
+          Chung tay trao yêu thương, <br /> cùng nhau tạo niềm tin
+        </h2>
+      </div>
+
+      {/* Bên phải - Form */}
+      <div
+        style={{
+          flex: 1,
+          background: "#fff",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "0 40px",
+        }}
+      >
+        <h2
+          style={{
+            fontWeight: "bold",
+            color: "#333",
+            marginBottom: "25px",
+            textAlign: "center",
+          }}
+        >
+          Đăng nhập hệ thống
+        </h2>
+
+        <Form
+          name="login"
+          onFinish={onFinish}
+          initialValues={{ remember: true }}
+          layout="vertical"
+          style={{ width: "100%", maxWidth: 400 }}
+        >
+          <Form.Item
+            name="username"
+            rules={[
+              { required: true, message: "Vui lòng nhập email!" },
+              { type: "email", message: "Email không hợp lệ!" },
+            ]}
+          >
+            <Input
+              prefix={<UserOutlined />}
+              placeholder="Email (ví dụ: ankhang05092004@gmail.com)"
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+          >
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="Mật khẩu"
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item name="remember" valuePropName="checked">
+            <Checkbox>Ghi nhớ đăng nhập</Checkbox>
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={loading}
+              style={{
+                width: "100%",
+                backgroundColor: "#52c41a",
+                border: "none",
+                borderRadius: "8px",
+              }}
+            >
+              Đăng nhập
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <p style={{ marginTop: "15px", fontSize: "14px", textAlign: "center" }}>
+          Chưa có tài khoản?{" "}
+          <a href="/register" style={{ color: "#52c41a", fontWeight: "500" }}>
+            Đăng ký ngay
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
