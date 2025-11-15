@@ -23,14 +23,14 @@ mongoose.connect(process.env.MONGO_URI)
 const userRoutes = require('./routes/userRoutes');             
 const dangKyRoutes = require('./routes/dangKyRoutes');               
 const dangKyLapQuyRoutes = require('./routes/dangKyLapQuyRoute'); //Này bị sai nhưng tạm thời để vậy đã//
-const donationRoutes = require("./routes/donationRoutes");
+const donationRoutes = require("./routes/donateRoutes");
 const fundRoutes = require('./routes/fundRoutes');
 
 
 app.use('/api/users', userRoutes);
 app.use('/api/dangky', dangKyRoutes);
 app.use('/api/dang-ky-lap-quy', dangKyLapQuyRoutes);//Này sai do ở trên cũng sai//
-app.use("/api/donate", donationRoutes);
+app.use("/api/donate", donateRoutes);
 app.use('/api/funds', fundRoutes);
 
 

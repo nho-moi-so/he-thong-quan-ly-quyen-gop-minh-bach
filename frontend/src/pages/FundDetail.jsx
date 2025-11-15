@@ -24,11 +24,10 @@ const FundDetail = () => {
         const res = await fetch(`http://localhost:5000/api/funds/${id}`);
         const data = await res.json();
 
-        // ======= Chú ý: thêm giá trị mặc định để tránh undefined =======
         const enriched = {
           ...data,
           raised: Number(data.soTienHienTai || 0),
-          donors: Number(data.donors || 0),
+          donors: (data.danhSachNguoiUngHo || []).length,
           soTienMucTieu: Number(data.soTienMucTieu || 0),
           daysLeft: data.ngayKetThuc
             ? Math.max(Math.ceil((new Date(data.ngayKetThuc) - new Date()) / (1000 * 60 * 60 * 24)), 0)

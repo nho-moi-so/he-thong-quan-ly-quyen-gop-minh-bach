@@ -43,8 +43,10 @@ const FundList = () => {
 
         const enriched = data.map(fund => ({
           ...fund,
+          logo: fund.logo?.map(l => typeof l === "string" ? { filename: "logo", url: l } : l) || [],
+          qrCode: fund.qrCode || [],
           raised: Number(fund.soTienHienTai || 0),
-          donors: Number(fund.donors || 0),
+          donors: (fund.danhSachNguoiUngHo || []).length,
           soTienMucTieu: Number(fund.soTienMucTieu || 0),
           daysLeft: fund.ngayKetThuc
             ? Math.max(Math.ceil((new Date(fund.ngayKetThuc) - new Date()) / (1000 * 60 * 60 * 24)), 0)

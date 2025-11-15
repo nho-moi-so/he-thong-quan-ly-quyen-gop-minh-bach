@@ -14,9 +14,9 @@ const userSchema = new mongoose.Schema({
   logo: [String],
   linkGioiThieu: String,
   thanhTich: [String],
-  gioiTinh: { type: String, enum: ["Nam", "Nữ", "Khác"], default: "Nam" }, // <- thống nhất với Compass
   cacQuyDaLap: [{ type: mongoose.Schema.Types.ObjectId, ref: "Quy" }],
   bio: String, // nếu bạn muốn dùng bio riêng
+  gioiTinh: { type: String, enum: ["Nam", "Nữ", "Khác"], default: "Nam" }, // <- thống nhất với Compass
 });
 
 

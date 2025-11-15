@@ -16,27 +16,32 @@ const LoginPage = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: values.username,    // Dùng username làm email
-          matKhau: values.password,  // Backend dùng matKhau
+          email: values.username,      // dùng username làm email
+          matKhau: values.password,    // backend dùng "matKhau"
         }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.user) {
-        // QUAN TRỌNG: Đảm bảo lưu cả _id và các field cần thiết
+        // Lưu thông tin user
         const userToSave = {
-          _id: data.user._id || data.user.id, // Hỗ trợ cả 2 kiểu
+          _id: data.user._id || data.user.id,
           hoTen: data.user.hoTen,
           email: data.user.email,
           vaiTro: data.user.vaiTro || "CaNhan",
-          avatar: data.user.logo?.[0] || "https://i.pravatar.cc/150?img=3", // fallback avatar
+          avatar:
+            data.user.logo?.[0] ||
+            "https://i.pravatar.cc/150?img=3",
         };
 
+        // Lưu vào localStorage
         localStorage.setItem("user", JSON.stringify(userToSave));
+        localStorage.setItem("email", data.user.email);
+
         message.success("Đăng nhập thành công!");
-        
-        // Chuyển hướng về trang trước đó hoặc /profile
+
+        // Điều hướng về trang trước hoặc trang chủ
         const redirectTo = location.state?.from?.pathname || "/";
         navigate(redirectTo);
 
@@ -53,7 +58,7 @@ const LoginPage = () => {
 
   return (
     <div style={{ height: "100vh", display: "flex" }}>
-      {/* Bên trái - Hình ảnh */}
+      {/* Bên trái */}
       <div
         style={{
           flex: 1,
@@ -80,7 +85,7 @@ const LoginPage = () => {
         </h2>
       </div>
 
-      {/* Bên phải - Form */}
+      {/* Bên phải */}
       <div
         style={{
           flex: 1,
@@ -157,9 +162,18 @@ const LoginPage = () => {
           </Form.Item>
         </Form>
 
-        <p style={{ marginTop: "15px", fontSize: "14px", textAlign: "center" }}>
+        <p
+          style={{
+            marginTop: "15px",
+            fontSize: "14px",
+            textAlign: "center",
+          }}
+        >
           Chưa có tài khoản?{" "}
-          <a href="/register" style={{ color: "#52c41a", fontWeight: "500" }}>
+          <a
+            href="/register"
+            style={{ color: "#52c41a", fontWeight: "500" }}
+          >
             Đăng ký ngay
           </a>
         </p>

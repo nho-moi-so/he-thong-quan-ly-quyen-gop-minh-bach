@@ -28,10 +28,7 @@ const fundSchema = new Schema({
   donViPhuTrach: String,
   trangThai: String,
   ngayTao: Date,
-
-  // ⭐ thêm vào đây
   soTienHienTai: { type: Number, default: 0 },
-
   danhSachNguoiUngHo: [
     {
       name: String,
@@ -39,7 +36,11 @@ const fundSchema = new Schema({
       anonymous: Boolean,
       date: Date
     }
-  ]
+  ],
+  email: { type: String, default: "" },
+  facebook: { type: String, default: "" },
+  phone: { type: String, default: "" },
+  diaChi: { type: String, default: "" }
 }, { collection: 'quy' });
 
 module.exports = mongoose.model('Fund', fundSchema);

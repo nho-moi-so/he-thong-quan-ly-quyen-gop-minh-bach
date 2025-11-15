@@ -21,8 +21,17 @@ router.post("/", async (req, res) => {
     const fund = await Fund.findById(fundId);
     if (!fund) return res.status(404).json({ message: "Fund không tồn tại" });
 
-    fund.raised += amount;
-    await fund.save();
+    fund.soTienHienTai += amount;
+
+// push người ủng hộ mới vào mảng danhSachNguoiUngHo
+fund.danhSachNguoiUngHo.push({
+  name,
+  amount,
+  anonymous,
+  date: new Date()
+});
+
+await fund.save();
 
     res.json({ message: "Ủng hộ thành công", amount: donation.amount });
   } catch (err) {
