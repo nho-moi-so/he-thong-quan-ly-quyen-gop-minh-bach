@@ -28,7 +28,7 @@ function App() {
         <Route path="/funds" element={<FundList />} /> 
         <Route path="/funds/:id" element={<FundDetail />} />
         <Route path="/saoke-quy" element={<SaoKeQuy />} />
-        <Route path="/donate" element={<DonatePage />} />
+        <Route path="/donate/:fundId" element={<DonatePage />} />
         <Route path="/tao-quy-moi" element={<TaoQuyMoi />} />
         <Route path="/gioi-thieu-quy" element={<GioiThieuQuy />} />
         <Route path="/dieu-khoan" element={<DieuKhoan />} />

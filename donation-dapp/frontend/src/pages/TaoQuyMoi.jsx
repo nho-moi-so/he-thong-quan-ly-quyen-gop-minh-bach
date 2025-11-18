@@ -48,11 +48,54 @@ const TaoQuyMoi = () => {
 
   const prev = () => setCurrentStep(currentStep - 1);
 
-  const handleFinish = (values) => {
-    console.log("Dữ liệu quỹ:", values);
+  const handleFinish = async (values) => {
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user?._id) return message.error("Vui lòng đăng nhập!");
+
+    const formData = new FormData();
+
+    // Helper: chuyển moment → string
+    const formatDate = (d) => (d ? d.format("YYYY-MM-DD") : null);
+
+    // Text + array fields
+    Object.entries(values).forEach(([key, val]) => {
+      if (key === "ngaySinh" || key === "ngayBatDau" || key === "ngayKetThuc") {
+        formData.append(key, formatDate(val));
+      } else if (Array.isArray(val)) {
+        val.forEach((v) => formData.append(key, v));
+      } else if (val !== undefined && val !== null) {
+        formData.append(key, val);
+      }
+    });
+
+    // File fields
+    const fileFields = ["logo", "thanhTich", "anhChinh", "anhThumbnail", "qrCode"];
+    fileFields.forEach((field) => {
+      const files = values[field];
+      if (files?.length) {
+        files.forEach((f) => formData.append(field, f.originFileObj));
+      }
+    });
+
+    formData.append("nguoiLap", user._id);
+
+    const res = await fetch("/api/dang-ky-lap-quy", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
     message.success("Tạo quỹ thành công!");
     navigate("/funds");
-  };
+  } catch (err) {
+    message.error(err.message || "Lỗi hệ thống");
+  }
+};
+
+
 
   const steps = [
     // ================= BUOC 1 =================

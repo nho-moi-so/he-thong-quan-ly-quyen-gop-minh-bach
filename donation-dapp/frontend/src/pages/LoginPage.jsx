@@ -8,30 +8,57 @@ const LoginPage = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (values.username === "admin" && values.password === "123456") {
+
+    try {
+      const response = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: values.username,      // dùng username làm email
+          matKhau: values.password,    // backend dùng "matKhau"
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.user) {
+        // Lưu thông tin user
+        const userToSave = {
+          _id: data.user._id || data.user.id,
+          hoTen: data.user.hoTen,
+          email: data.user.email,
+          vaiTro: data.user.vaiTro || "CaNhan",
+          avatar:
+            data.user.logo?.[0] ||
+            "https://i.pravatar.cc/150?img=3",
+        };
+
+        // Lưu vào localStorage
+        localStorage.setItem("user", JSON.stringify(userToSave));
+        localStorage.setItem("email", data.user.email);
+
         message.success("Đăng nhập thành công!");
 
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            username: "admin",
-            avatar: "https://i.pravatar.cc/150?img=3",
-          })
-        );
+        // Điều hướng về trang trước hoặc trang chủ
+        const redirectTo = location.state?.from?.pathname || "/";
+        navigate(redirectTo);
 
-        navigate(location.state?.from || "/");
       } else {
-        message.error("Tài khoản hoặc mật khẩu không đúng!");
+        message.error(data.message || data.error || "Sai email hoặc mật khẩu!");
       }
-    }, 1000);
+    } catch (err) {
+      console.error("Lỗi đăng nhập:", err);
+      message.error("Không thể kết nối đến máy chủ!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div style={{ height: "100vh", display: "flex" }}>
+      {/* Bên trái */}
       <div
         style={{
           flex: 1,
@@ -58,6 +85,7 @@ const LoginPage = () => {
         </h2>
       </div>
 
+      {/* Bên phải */}
       <div
         style={{
           flex: 1,
@@ -89,16 +117,27 @@ const LoginPage = () => {
         >
           <Form.Item
             name="username"
-            rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập!" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập email!" },
+              { type: "email", message: "Email không hợp lệ!" },
+            ]}
           >
-            <Input prefix={<UserOutlined />} placeholder="Tên đăng nhập" size="large" />
+            <Input
+              prefix={<UserOutlined />}
+              placeholder="Email (ví dụ: ankhang05092004@gmail.com)"
+              size="large"
+            />
           </Form.Item>
 
           <Form.Item
             name="password"
             rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" size="large" />
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="Mật khẩu"
+              size="large"
+            />
           </Form.Item>
 
           <Form.Item name="remember" valuePropName="checked">
@@ -123,9 +162,18 @@ const LoginPage = () => {
           </Form.Item>
         </Form>
 
-        <p style={{ marginTop: "15px", fontSize: "14px", textAlign: "center" }}>
+        <p
+          style={{
+            marginTop: "15px",
+            fontSize: "14px",
+            textAlign: "center",
+          }}
+        >
           Chưa có tài khoản?{" "}
-          <a href="/register" style={{ color: "#52c41a", fontWeight: "500" }}>
+          <a
+            href="/register"
+            style={{ color: "#52c41a", fontWeight: "500" }}
+          >
             Đăng ký ngay
           </a>
         </p>
